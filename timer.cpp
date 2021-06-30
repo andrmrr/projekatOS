@@ -10,6 +10,8 @@
 #include "general.h"
 #include "SCHEDULE.H"
 #include "pcb.h"
+#include "krnSem.h"
+#include "timeList.h"
 #include <IOSTREAM.H>
 
 
@@ -28,10 +30,35 @@ void interrupt timer(){
 		if(PCB::running->quantum != 0){
 			counter--;
 		}
+		//mora da se pozove tick() i stara prekidna rutina tajmera
 		tick();
 #ifndef BCC_BLOCK_IGNORE
 		asm int 60h;
 #endif
+
+		//semafori
+		KernelSem* ks;
+		cout << "\nTIMER\n\n";
+		int i = 0;
+		for(KernelSem::kernelSemList.goToFirst(); KernelSem::kernelSemList.isCurrent(); KernelSem::kernelSemList.goToNext()){
+			cout << "Semafor broj: " << i++ << endl;
+			ks = KernelSem::kernelSemList.getCurrent();
+			cout << "Wait lista u tajmeru: "<< ks->waitTimeList;
+			ks->waitTimeList.goToFirst();
+			if(ks->waitTimeList.isCurrent()){
+				if(ks->waitTimeList.getCurrentTime() > 0){
+					ks->waitTimeList.decTime();
+				}
+				else {
+					cout << "AJDE DA GA VADIMO\n";
+					PCB* waiting = (PCB*)ks->waitTimeList.getCurrent();
+					ks->waitTimeList.removeCurrent();
+					waiting->status = PCB::READY;
+					Scheduler::put(waiting);
+				}
+			}
+		}
+
 	}
 
 	if((counter == 0 && PCB::running->quantum != 0) || context_switch_on_demand){
@@ -52,15 +79,15 @@ void interrupt timer(){
 		//ako je spremna trenutna nit se ubacuje u Scheduler
 		if(PCB::running->status == PCB::READY){
 			Scheduler::put((PCB*)PCB::running);
-			cout << "Stavljamo nit: " << PCB::running->id <<" u scheduler\n";
+			//cout << "Stavljamo nit: " << PCB::running->id <<" u scheduler\n";
 		}
 		//}
 
-		cout << "Unfinished: " << PCB::unfinished << endl;
+		//cout << "Unfinished: " << PCB::unfinished << endl;
 
 		//uzimamo novu nit za izvrsavanje iz Schedulera
 		PCB::running = Scheduler::get();
-		cout << "Running ID: " << PCB::running->id << endl << endl;
+		//cout << "Running ID: " << PCB::running->id << endl << endl;
 		if(PCB::running  == 0){
 			//palimo idle nit
 			PCB::running = idlePCB;

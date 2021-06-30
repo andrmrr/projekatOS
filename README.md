@@ -1,3 +1,0 @@
-# projekatOS
-
-Pakao keve mi

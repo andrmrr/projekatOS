@@ -13,6 +13,7 @@
 template <class T>
 class BaseList {
 
+protected:
 	struct Elem {
 		T data;
 		Elem* next;
@@ -41,7 +42,7 @@ class BaseList {
 		l.first = l.last = 0;
 	}
 
-	void deleteAll() {
+	virtual void deleteAll() {
 			Elem* elem = first;
 		while (first) {
 			elem = first->next;
@@ -60,7 +61,7 @@ public:
 		copy(l);
 	}
 
-	~BaseList() {
+	virtual ~BaseList() {
 		deleteAll();
 	}
 
@@ -73,7 +74,7 @@ public:
 	}
 
 
-	BaseList& add(const T& t) {
+	virtual BaseList& add(const T& t) {
 		last = (!first ? first : last->next) = new Elem(t);
 		return *this;
 	}
@@ -83,6 +84,7 @@ public:
 		beforeCurrent = 0;
 		return *this;
 	}
+
 
 	BaseList& goToNext() {
 		beforeCurrent = current;
@@ -95,17 +97,17 @@ public:
 	}
 
 	T& getCurrent(){
-		if (!current) cout << "Ne postoji element ";
+		if (!current) cout << "Ne postoji element get\n";
 		return current->data;
 	}
 
 	const T& getCurrent() const {
-		if (!current) cout << "Ne postoji element ";
+		if (!current) cout << "Ne postoji element get const\n";
 		return current->data;
 	}
 
 	BaseList& removeCurrent() {
-		if (!current) cout << "Ne postoji element ";
+		if (!current) cout << "Ne postoji element remove\n";
 		Elem* old = current;
 		current = current->next;
 		(!beforeCurrent ? first : beforeCurrent->next) = current;
@@ -113,13 +115,14 @@ public:
 		delete old;
 		return *this;
 	}
-
+/*
 	friend ostream& operator<<(ostream& os, const BaseList& l1) {
 		for (Elem *current = l1.first; current; current = current->next) {
 			os << current->data << endl;
 		}
 		return os;
 	}
+	*/
 };
 
 

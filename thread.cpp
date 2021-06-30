@@ -19,11 +19,13 @@ void Thread::start(){
 
 void Thread::waitToComplete(){
 	if(myPCB){
+		cout << "Thread waitToComplete\n";
 		myPCB->waitToComplete();
 	}
 }
 
 Thread::~Thread() {
+	//this->waitToComplete();//mozda ne radi posao
 	if(myPCB){
 		cout << "Thread destruktor\n";
 		delete myPCB;

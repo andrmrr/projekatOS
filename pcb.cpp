@@ -35,7 +35,7 @@ void PCB::start(){
 void  PCB::waitToComplete(){
 	//ubacujemo tekucu nit u listu koje cekaju this nit da se zavrsi
 	cout << "Pokusaj waitToComplete-a za nit " << this->id<< endl;
-	if(this != running && this->status != FINISHED && this->status != IDLE){
+	if(this != running && this->status != FINISHED && this->status != IDLE && this->status != INITIALIZED){
 #ifndef BCC_BLOCK_IGNORE
 	lock;
 		cout << "UPADAMO U WAITTOCOMPLETE BATOO\n";
@@ -68,6 +68,7 @@ ID PCB::getRunningId(){
 	if(running){
 		return pcbList.getID(running->myThread);
 	}
+	return -1;
 }
 
 Thread * PCB::getThreadById(ID id){
@@ -77,8 +78,7 @@ Thread * PCB::getThreadById(ID id){
 
 
 void PCB::wrapper(){
-	cout << "Prva\n";
-	cout <<"Thread: " << (void*)running->myThread << endl;
+	//cout <<"Thread: " << (void*)running->myThread << endl;
 	running->myThread->run();
 
 #ifndef BCC_BLOCK_IGNORE

@@ -10,7 +10,12 @@
 
 
 void idle() {
-	while(1){}//cout << "IDLE"; }
+	while(1){
+		int k, j;
+		cout<< "IDLE ";
+		for ( k = 0; k<10000; ++k)
+			for ( j = 0; j <3000; ++j);
+	}
 }
 
 IdlePCB::IdlePCB() : PCB(0, defaultStackSize, 1) {

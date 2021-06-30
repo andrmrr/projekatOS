@@ -23,9 +23,7 @@ public:
 	void waitToComplete() {}
 	static PCB* createIdlePCB();
 
-	 ID getId() {}
-	 static ID getRunningId() {}
-	 static Thread * getThreadById(ID id) {}
+	 ID getId() {return 1;}
 
 protected:
 	void deblock(){}
