@@ -47,8 +47,6 @@ ID PCBList::insert(PCB* pcb){
 		}
 
 		Elem* newElem;
-
-
 		//ako ubacujemo PCB na prvo mesto liste
 		if(firstFree == 0){
 			ret = 0;
@@ -149,9 +147,9 @@ ID PCBList::getID(Thread* t){
 */
 
 Thread* PCBList::getThreadById(ID id){
-	//if(isEmpty()) return 0;
 	Elem* cur;
 	Thread* ret = 0;
+#ifndef BCC_BLOCK_IGNORE
 	lock;
 	//cur postavljamo na firstFree ako je on blizi trazenom elementu, u suprotnom na first
 	if(firstFree && firstFree->id > first->id && firstFree->id < id) cur = firstFree;
@@ -168,6 +166,7 @@ Thread* PCBList::getThreadById(ID id){
 		cur = cur->next;
 	}
 	unlock;
+#endif
 	return ret;
 }
 

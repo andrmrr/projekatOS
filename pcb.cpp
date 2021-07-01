@@ -136,6 +136,7 @@ PCB::PCB(Thread* mt, StackSize stackSize, Time timeSlice){
 	if(stackSize > 65535) stackSize = 65535;
 	stackSize /= sizeof(unsigned);
 	if(stackSize < defaultStackSize/sizeof(unsigned)) stackSize = defaultStackSize/sizeof(unsigned);
+	size = stackSize;
 	stack = new unsigned[stackSize];
 	unlock;
 	stack[stackSize - 1] = 0x200; //PSW
@@ -150,6 +151,7 @@ PCB::PCB(Thread* mt, StackSize stackSize, Time timeSlice){
 
 PCB::PCB(){
 	quantum = defaultTimeSlice;
+	size = 0;
 	stack = 0;
 	myThread = 0;
 	status = READY;

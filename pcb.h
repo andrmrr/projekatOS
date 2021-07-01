@@ -18,7 +18,8 @@ class PCB {
 
 public:
 	enum Status {INITIALIZED, READY, BLOCKED, FINISHED, IDLE};
-	unsigned quantum;
+	Time quantum;
+	StackSize size;
 	unsigned* stack;
 	unsigned ss;
 	unsigned sp;
