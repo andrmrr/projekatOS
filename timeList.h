@@ -25,7 +25,8 @@ public:
 
 	virtual void deleteAll();
 	TimeList& add(void* const& p, Time wt);
-	Time TimeList::getCurrentTime();
+	Time getCurrentTime();
+	void setCurrentTime(Time newTime);
 	void decTime();
 
 	friend ostream& operator<<(ostream& os, const TimeList& l1) {

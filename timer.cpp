@@ -26,6 +26,7 @@ volatile int context_switch_on_demand;
 //void tick(){}
 
 void interrupt timer(){
+	//syncPrintf("\nTIMER\n");
 	if(!context_switch_on_demand) {
 		if(PCB::running->quantum != 0){
 			counter--;
@@ -35,31 +36,28 @@ void interrupt timer(){
 #ifndef BCC_BLOCK_IGNORE
 		asm int 60h;
 #endif
-/*
+
+
+
 		//semafori
-		KernelSem* ks;
-		//cout << "\nTIMER\n\n";
-		//cout << endl << endl <<"Running ID: " << PCB::running->id << endl << endl;
-		int i = 0;
-		for(KernelSem::kernelSemList.goToFirst(); KernelSem::kernelSemList.isCurrent(); KernelSem::kernelSemList.goToNext()){
-			//syncPrintf("Semafor broj: %d\n", i++);//cout << "Semafor broj: " << i++ << endl;
-			ks = KernelSem::kernelSemList.getCurrent();
-			//cout << "Wait lista u tajmeru: "<< ks->waitTimeList;
-			ks->waitTimeList.goToFirst();
-			if(ks->waitTimeList.isCurrent()){
-				if(ks->waitTimeList.getCurrentTime() > 0){
-					ks->waitTimeList.decTime();
-				}
-				else {
-					//cout << "AJDE DA GA VADIMO\n";
-					PCB* waiting = (PCB*)ks->waitTimeList.getCurrent();
-					ks->waitTimeList.removeCurrent();
-					waiting->status = PCB::READY;
-					Scheduler::put(waiting);
-				}
+		KernelSemElem* kse = ksHead;
+		while(kse){
+			KernelSem::ElemTime* et = kse->ks->timeHead;
+			if(et){
+				et->tm--;
 			}
+			while(et && et->tm == 0){
+				kse->ks->timeHead = kse->ks->timeHead->next;
+				PCB* unblocked = et->data;
+				unblocked->status = PCB::READY;
+				Scheduler::put(unblocked);
+				delete et;
+				et = kse->ks->timeHead;
+			}
+			kse = kse->next;
 		}
-*/
+
+
 	}
 
 	if((counter == 0 && PCB::running->quantum != 0) || context_switch_on_demand){

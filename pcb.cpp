@@ -41,6 +41,7 @@ void  PCB::waitToComplete(){
 		running->status = BLOCKED;
 		this->waitToCompleteList.add((PCB*)running);
 		dispatch();
+		//syncPrintf("Izlazimo iz waitToComplete-a\n");
 	}
 	unlock;
 #endif
@@ -86,8 +87,8 @@ void PCB::wrapper(){
 	running->status = FINISHED;
 	unfinished --;
 	running->deblock();
-	dispatch();
 	unlock;
+	dispatch();
 #endif
 }
 
@@ -132,17 +133,17 @@ PCB::PCB(Thread* mt, StackSize stackSize, Time timeSlice){
 
 #ifndef BCC_BLOCK_IGNORE
 	lock;
-	stackSize /= sizeof(unsigned);
 	if(stackSize > 65535) stackSize = 65535;
+	stackSize /= sizeof(unsigned);
 	if(stackSize < defaultStackSize/sizeof(unsigned)) stackSize = defaultStackSize/sizeof(unsigned);
 	stack = new unsigned[stackSize];
 	unlock;
-	stack[1023] = 0x200; //PSW
-	stack[1022] = FP_SEG(wrapper); //CS
-	stack[1021] = FP_OFF(wrapper); //IP
+	stack[stackSize - 1] = 0x200; //PSW
+	stack[stackSize - 2] = FP_SEG(wrapper); //CS
+	stack[stackSize - 3] = FP_OFF(wrapper); //IP
 	//stack[1020-1012] = {AX, BX, CX, DX, ES, DS, SI, DI, BP}
-	ss = FP_SEG(stack + 1012);
-	sp = FP_OFF(stack + 1012);
+	ss = FP_SEG(stack + stackSize - 12);
+	sp = FP_OFF(stack + stackSize - 12);
 	bp = sp;
 #endif
 }

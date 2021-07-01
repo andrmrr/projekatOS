@@ -28,6 +28,7 @@ public:
 	ID id;
 	BaseList<PCB*> waitToCompleteList;
 
+
 	volatile static PCB* running;
 	static PCBList pcbList;
 	static unsigned unfinished;

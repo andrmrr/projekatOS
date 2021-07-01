@@ -155,12 +155,9 @@ UserThread::~UserThread(){ this->waitToComplete(); }
 
 void UserThread::run() {
 	//int userMain(int argc, char* argv[]);
-	char* argvv[4];
-	argvv[1] = "2048";
-	argvv[2] = "1";
-	argvv[3] = "1";
 
-	retMain = userMain(4, argvv);
+
+	retMain = userMain(argc, argv);
 	//retMain = userMain(argc, argv);
 }
 

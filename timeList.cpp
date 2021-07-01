@@ -52,15 +52,20 @@ TimeList& TimeList::add(void* const& p, Time wt){
 	}
 
 
-	Time TimeList::getCurrentTime(){
-			if (!current) cout << "Ne postoji element gettime\n";
-			return ((TimeElem*)current)->waitTime;
-		}
+Time TimeList::getCurrentTime(){
+		if (!current) cout << "Ne postoji element gettime\n";
+		return ((TimeElem*)current)->waitTime;
+	}
 
-	void TimeList::decTime(){
-			if (!current) cout << "Ne postoji element dectime\n";
-			((TimeElem*)current)->waitTime--;
-		}
+void TimeList::setCurrentTime(Time newTime){
+	if (!current) cout << "Ne postoji element dectime\n";
+			((TimeElem*)current)->waitTime = newTime;
+}
+
+void TimeList::decTime(){
+		if (!current) cout << "Ne postoji element dectime\n";
+		((TimeElem*)current)->waitTime--;
+	}
 
 
 	//sakrivamo staru funkciju

@@ -36,12 +36,19 @@ int PCBList::isFull(){
 
 
 ID PCBList::insert(PCB* pcb){
-		if(isFull()) return -1;
+#ifndef BCC_BLOCK_IGNORE
+		int ret = -10;
+		lock;
+		if(isFull()) ret = -1;
+		if(ret == -1)
+		{
+			unlock;
+			return ret;
+		}
 
 		Elem* newElem;
-		int ret;
-#ifndef BCC_BLOCK_IGNORE
-		lock;
+
+
 		//ako ubacujemo PCB na prvo mesto liste
 		if(firstFree == 0){
 			ret = 0;
@@ -65,13 +72,22 @@ ID PCBList::insert(PCB* pcb){
 		size++;
 		//cout << "UBACIO: " << ret << endl;
 		unlock;
-#endif
 		return ret;
+#endif
 	}
 
 
 int PCBList::remove(ID id){
-		if(isEmpty()) return -1;
+#ifndef BCC_BLOCK_IGNORE
+		int ret = -2;
+		lock;
+		if(isEmpty()) ret = -1;
+		if(ret == -1)
+		{
+			unlock;
+			return ret;
+		}
+
 
 		Elem* cur, *prev = 0;
 		//cur postavljamo na firstFree ako je on blizi trazenom elementu, u suprotnom na first
@@ -83,13 +99,11 @@ int PCBList::remove(ID id){
 
 			//ako je pronadjen element za brisanje
 			if(cur->id == id){
-#ifndef BCC_BLOCK_IGNORE
-		lock;
 				//cout << "Nasli ID\n";
 				if(prev){
 					prev->next = cur->next;
 					//azuriramo firstFree ako je potrebno
-					if(firstFree->id > prev->id) firstFree = prev;
+					if(firstFree && firstFree->id > prev->id) firstFree = prev;
 				}
 				else{
 				//	cout << "Brisemo prvi\n";
@@ -100,13 +114,13 @@ int PCBList::remove(ID id){
 				size--;
 				//cout << "Obrisao: " << id << endl;
 				//cout << "Preostalo niti: " << this->size << endl;
-		unlock;
-#endif
-				return 0;
+				ret = 0;
+				break;
 			}
 			//ako nije pronadjen element za brisanje
 			else if(cur->id > id){
-				return -2;
+				ret = -2;
+				break;
 			}
 
 			prev = cur;
@@ -114,7 +128,9 @@ int PCBList::remove(ID id){
 		}
 
 		//nije pronadjen element za brisanje
-		return -2;
+		unlock;
+		return ret;
+#endif
 	}
 /*
 ID PCBList::getID(Thread* t){
@@ -133,24 +149,26 @@ ID PCBList::getID(Thread* t){
 */
 
 Thread* PCBList::getThreadById(ID id){
-	if(isEmpty()) return 0;
-
+	//if(isEmpty()) return 0;
 	Elem* cur;
+	Thread* ret = 0;
+	lock;
 	//cur postavljamo na firstFree ako je on blizi trazenom elementu, u suprotnom na first
 	if(firstFree && firstFree->id > first->id && firstFree->id < id) cur = firstFree;
 	else cur = first;
 
 	while(cur){
 		if(cur->id == id){
-			return cur->data->myThread;
+			ret = cur->data->myThread;
+			break;
 		}
 		else if(cur->id > id){
 			break;
 		}
 		cur = cur->next;
 	}
-
-	return 0;
+	unlock;
+	return ret;
 }
 
 void PCBList::deleteAll(){

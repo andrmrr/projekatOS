@@ -1,42 +1,54 @@
 /*
  * krnSem.h
  *
- *  Created on: Jun 29, 2021
+ *  Created on: Jul 1, 2021
  *      Author: OS1
  */
 
 #ifndef KRNSEM_H_
 #define KRNSEM_H_
 
-
-#include "baseList.h"
-#include "timeList.h"
-#include "semaphor.h"
 #include "pcb.h"
-
 
 
 class KernelSem {
 
 public:
 	KernelSem(int init = 1);
-	 ~KernelSem();
+	~KernelSem();
+
 	int wait(Time maxTimeToWait);
 	void signal();
+
 	int val() const;
 
-	static BaseList<KernelSem*> kernelSemList;
 
-	//obavezno kastuj na PCB*
-	TimeList waitTimeList;
-	BaseList<void*> waitSignalList;
 
-private:
+
+	struct ElemSig{
+		PCB* data;
+		ElemSig* next;
+	};
+
+	struct ElemTime{
+		PCB* data;
+		ElemTime* next;
+		Time tm;
+	};
+
+
+	ElemSig* sigHead, *sigTail;
+	ElemTime* timeHead;
 	int value;
 
 };
 
 
+struct KernelSemElem {
+	KernelSem* ks;
+	KernelSemElem * next;
+};
 
+extern KernelSemElem* ksHead;
 
 #endif /* KRNSEM_H_ */

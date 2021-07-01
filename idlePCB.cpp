@@ -22,8 +22,8 @@ void idle() {
 IdlePCB::IdlePCB() : PCB(0, defaultStackSize, 1) {
 		status = PCB::IDLE;
 #ifndef BCC_BLOCK_IGNORE
-		stack[1022] = FP_SEG(idle);
-		stack[1021] = FP_OFF(idle);
+		stack[defaultStackSize / 2 - 2] = FP_SEG(idle);
+		stack[defaultStackSize / 2 - 3] = FP_OFF(idle);
 #endif
 	}
 

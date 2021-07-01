@@ -16,6 +16,7 @@ class Thread;
 //ulancana lista
 class PCBList {
 
+public:
 	struct Elem{
 		PCB* data;
 		ID id;
@@ -26,7 +27,7 @@ class PCBList {
 	Elem* first, *firstFree;
 	unsigned size;//maksimum je 65535
 
-public:
+
 
 	PCBList();
 	~PCBList();
