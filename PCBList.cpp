@@ -10,21 +10,21 @@
 #include <IOSTREAM.H>
 
 
-//zasto je size = 1?
+
 PCBList::PCBList() : first(0), firstFree(0), size(0) { }
 
 
 PCBList::~PCBList(){
-		cout << "Destruktor PCBListe" << endl;
+		//cout << "Destruktor PCBListe" << endl;
 		deleteAll();
 	}
 
 
 int PCBList::isEmpty(){
-		if(size > 0){
-			return 0;
+		if(size == 0){
+			return 1;
 		}
-		else return 1;
+		else return 0;
 	}
 
 int PCBList::isFull(){
@@ -41,7 +41,7 @@ ID PCBList::insert(PCB* pcb){
 		Elem* newElem;
 		int ret;
 #ifndef BCC_BLOCK_IGNORE
-			lock;
+		lock;
 		//ako ubacujemo PCB na prvo mesto liste
 		if(firstFree == 0){
 			ret = 0;
@@ -49,7 +49,6 @@ ID PCBList::insert(PCB* pcb){
 			first = newElem;
 			firstFree = newElem;
 		}
-		//ako lista nije prazna
 		else{
 			ret = firstFree->id + 1;
 			newElem = new Elem(pcb, firstFree->next, ret);
@@ -64,7 +63,7 @@ ID PCBList::insert(PCB* pcb){
 		}
 
 		size++;
-		cout << "UBACIO: " << ret << endl;
+		//cout << "UBACIO: " << ret << endl;
 		unlock;
 #endif
 		return ret;
@@ -82,26 +81,25 @@ int PCBList::remove(ID id){
 
 		while(cur){
 
-
 			//ako je pronadjen element za brisanje
 			if(cur->id == id){
 #ifndef BCC_BLOCK_IGNORE
 		lock;
-				cout << "Nasli ID\n";
+				//cout << "Nasli ID\n";
 				if(prev){
 					prev->next = cur->next;
 					//azuriramo firstFree ako je potrebno
 					if(firstFree->id > prev->id) firstFree = prev;
 				}
 				else{
-					cout << "Brisemo prvi\n";
+				//	cout << "Brisemo prvi\n";
 					firstFree = 0;
 					first = cur->next;
 				}
 				delete cur;
 				size--;
-				cout << "Obrisao: " << id << endl;
-				cout << "Preostalo niti: " << this->size << endl;
+				//cout << "Obrisao: " << id << endl;
+				//cout << "Preostalo niti: " << this->size << endl;
 		unlock;
 #endif
 				return 0;
@@ -115,11 +113,10 @@ int PCBList::remove(ID id){
 			cur = cur->next;
 		}
 
-
 		//nije pronadjen element za brisanje
 		return -2;
 	}
-
+/*
 ID PCBList::getID(Thread* t){
 	if(isEmpty()) return -1;
 
@@ -133,6 +130,7 @@ ID PCBList::getID(Thread* t){
 
 	return -1;
 }
+*/
 
 Thread* PCBList::getThreadById(ID id){
 	if(isEmpty()) return 0;
@@ -156,17 +154,18 @@ Thread* PCBList::getThreadById(ID id){
 }
 
 void PCBList::deleteAll(){
-		Elem* cur = first, *next = cur;
-		while(cur){
 #ifndef BCC_BLOCK_IGNORE
-			lock;
-			cout << "DELETE ALL id: " << cur->id << endl;
-			unlock;
-#endif
-			next = cur->next;
+		lock;
+		Elem* cur = first, *nextt = 0;
+		while(cur){
+			//syncPrintf("DELETE ALL id: %d\n", cur->id);
+			nextt = cur->next;
 			delete cur;
-			cur = next;
+			cur = nextt;
 		}
 		size = 0;
+		first = firstFree = 0;
+		unlock;
+#endif
 	}
 

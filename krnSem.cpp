@@ -6,33 +6,41 @@
  */
 
 
-
-
-//#include "pcb.h"
 #include "krnSem.h"
-//#include "baseList.h"
 #include "general.h"
 #include "SCHEDULE.H"
 
 
 BaseList<KernelSem*> KernelSem::kernelSemList;
 
-
+/*
 KernelSem* KernelSem::createKernelSem(Semaphore* s, int init){
-	KernelSem* newks = new KernelSem(s, init);
+	//cout << "Pravi se semafor!\n";
+	KernelSem* newks;
+#ifndef BCC_BLOCK_IGNORE
+	lock;
+	newks = new KernelSem(s, init);
 	kernelSemList.add(newks);
+	unlock;
+#endif
 	return newks;
 }
+*/
 
-
-KernelSem::KernelSem(Semaphore* s, int init){
+KernelSem::KernelSem(int init){
 	value = init;
-	sem = s;
+#ifndef BCC_BLOCK_IGNORE
+	lock;
+	kernelSemList.add(this);
+	unlock;
+#endif
 }
 
 
 KernelSem::~KernelSem(){
-	cout << "Usli u destruktor KernelSema-a\n";
+#ifndef BCC_BLOCK_IGNORE
+	lock;
+	//cout << "Usli u destruktor KernelSema-a\n";
 	KernelSem* ks;
 	kernelSemList.goToFirst();
 	while(kernelSemList.isCurrent()){
@@ -42,16 +50,20 @@ KernelSem::~KernelSem(){
 			break;
 		}
 	}
-	cout << "Izasli iz destruktora KernelSem-a\n";
+	//cout << "Izasli iz destruktora KernelSem-a\n";
+	unlock;
+#endif
 }
 
 
 int KernelSem::wait(Time maxTimeToWait){
+	//syncPrintf("Nit %d usla u wait semafora\n", PCB::running->getRunningId());
 	if(maxTimeToWait == 0){
 #ifndef BCC_BLOCK_IGNORE
 	lock;
 		value--;
 		if(value < 0){
+			//syncPrintf("AJDE DA GA STAVIMO\n");
 			waitSignalList.add((void*)PCB::running);
 			PCB::running->status = PCB::BLOCKED;
 			dispatch();
@@ -67,7 +79,7 @@ int KernelSem::wait(Time maxTimeToWait){
 	else{
 #ifndef BCC_BLOCK_IGNORE
 	lock;
-	cout <<"AJDE DA GA STAVIMO\n";
+	//cout <<"AJDE DA GA STAVIMO\n";
 		waitTimeList.add((void*)PCB::running, maxTimeToWait);
 		PCB::running->status = PCB::BLOCKED;
 		dispatch();
@@ -80,6 +92,7 @@ int KernelSem::wait(Time maxTimeToWait){
 
 
 void KernelSem::signal(){
+	//syncPrintf("Nit %d je usla u signal\n", PCB::running->getRunningId());
 #ifndef BCC_BLOCK_IGNORE
 	lock;
 	value++;
@@ -87,7 +100,8 @@ void KernelSem::signal(){
 		waitSignalList.goToFirst();
 		PCB* unblocked = (PCB*)waitSignalList.getCurrent();
 		waitSignalList.removeCurrent();
-		cout << "SIGNALIZIRAM\n";
+		//syncPrintf("AJDE DA GA VADIMO\n");
+		//cout << "SIGNALIZIRAM\n";
 		unblocked->status = PCB::READY;
 		Scheduler::put(unblocked);
 	}

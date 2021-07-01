@@ -17,8 +17,8 @@ public:
 
 	int val () const; // Returns the current value of the semaphore
 
- KernelSem* myImpl;
 private:
+	KernelSem* myImpl;
 
 };
 #endif

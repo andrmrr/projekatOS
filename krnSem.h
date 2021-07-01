@@ -9,41 +9,30 @@
 #define KRNSEM_H_
 
 
-//#include "thread.h"
 #include "baseList.h"
 #include "timeList.h"
 #include "semaphor.h"
-//#include "wsList.h"
 #include "pcb.h"
-
-class PCB;
 
 
 
 class KernelSem {
 
 public:
-	static KernelSem* createKernelSem(Semaphore* sem, int init = 1);
+	KernelSem(int init = 1);
 	 ~KernelSem();
-
 	int wait(Time maxTimeToWait);
 	void signal();
-
 	int val() const;
 
 	static BaseList<KernelSem*> kernelSemList;
 
-	TimeList waitTimeList;
-private:
-
 	//obavezno kastuj na PCB*
+	TimeList waitTimeList;
 	BaseList<void*> waitSignalList;
+
+private:
 	int value;
-	Semaphore* sem;
-
-protected:
-	KernelSem(Semaphore* s, int init = 1);
-
 
 };
 

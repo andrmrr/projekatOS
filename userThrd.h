@@ -18,7 +18,8 @@ class UserThread : public Thread{
 	int argc;
 	char **argv;
 	int retMain;
-	static int userMain(int argc, char* argv[]);
+	//static int userMain(int argc, char* argv[]);
+
 
 public:
 
@@ -28,8 +29,6 @@ public:
 
 protected:
 	void run();
-
-
 
 };
 

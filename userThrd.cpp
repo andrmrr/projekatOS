@@ -11,35 +11,36 @@
 #include <IOSTREAM.H>
 #include "general.h"
 #include "timer.h";
-#include "semaphor.h"
+//#include "semaphor.h"
+//#include "event.h"
 
+/*
 int userMainTestFirst(int argc, char* argv[]){
 	class Nit : public Thread{
 		public:
-			Nit() : Thread(defaultStackSize, 0) {}
+			Nit() : Thread(defaultStackSize, 5) {}
 			~Nit()  {this->waitToComplete(); }
 		protected:
 			void run() {
-				cout << "Usli u run\n";
+				syncPrintf("Usli u run\n");//cout << "Usli u run\n";
 				int i, j, k;
-					for ( i =0; i < 100; ++i) {
-						//lock;
-						if(i == 50) PCB::running->getThreadById(3)->waitToComplete();
-						cout<< "Nit: " << this->getId()  << ";  i = "<<i<<endl;
-						//unlock;
-						for ( k = 0; k<10000; ++k)
-							for ( j = 0; j <30000; ++j);
-					}
-					cout << "Zavrsen run metod niti" << this->getId() << endl;
+				for ( i =0; i < 10; ++i) {
+					//if(i == 50) PCB::running->getThreadById(3)->waitToComplete();
+					syncPrintf("Nit: %d; i = %d\n", this->getId(), i);//cout<< "Nit: " << this->getId()  << ";  i = "<<i<<endl;"
+
+					for ( k = 0; k<10000; ++k)
+						for ( j = 0; j <30000; ++j);
+				}
+				syncPrintf("Zavrsen run metod niti%d\n", this->getId());//cout << "Zavrsen run metod niti" << this->getId() << endl;
 			}
 		};
 
-		/*
+
 		Nit kita;
 		cout << "Kita id: " << kita.getId() << endl;
 		int i;
-		int n = 30;
-		Nit* niti[30];
+		int n = 100;
+		Nit* niti[100];
 		for(i = 0; i < n; i++){
 			niti[i] = new Nit();
 			niti[i]->start();
@@ -54,7 +55,7 @@ int userMainTestFirst(int argc, char* argv[]){
 
 	 	for(i = 0; i < n; i++){
 	 		delete niti[i];
-	 	}*/
+	 	}
 
 		Nit prva, druga;
 		prva.start();
@@ -66,74 +67,101 @@ int userMainTestFirst(int argc, char* argv[]){
 	 	cout << "Sljaka toBa\n";
 	 	return 0;
 }
+*/
 
+/*
 class Nit : public Thread{
 public:
-	static Semaphore nitSem;
+	static Semaphore nitSem[10];
 	Nit() : Thread(defaultStackSize, 5) {}
 	~Nit()  {this->waitToComplete(); }
 protected:
-	void run() {
-		cout << "Usli u run\n";
+	void run();
+};
+
+void Nit::run() {
+		//cout << "Usli u run\n";
 		//cout << Nit::nitSem.myImpl->waitTimeList;
-		nitSem.wait(0);
+		nitSem[getId() % 10].wait(getId()*2);
 		int i, j, k;
 			for ( i =0; i < 10; ++i) {
-				//lock;
+#ifndef BCC_BLOCK_IGNORE
+				lock;
 				cout<< "Nit: " << this->getId()  << ";  i = "<<i<<endl;
-				//unlock;
+				unlock;
+#endif
 				for ( k = 0; k<10000; ++k)
 					for ( j = 0; j <30000; ++j);
 			}
+#ifndef BCC_BLOCK_IGNORE
+			lock;
 			cout << "Zavrsen run metod niti" << this->getId() << endl;
-	}
-};
-
-Semaphore Nit::nitSem;
-
-int UserThread::userMain(int argc, char* argv[]){
-
-
-	Nit prva, druga;
-	//Semaphore sem;
-	prva.start();
-	druga.start();
-	cout << "Startovali niti\n";
-	Nit::nitSem.wait(5);
-	cout << "Odradili wait\n";
-	int i, j, k;
-	for ( i =0; i < 10; ++i) {
-		//lock;
-		cout<< "Main: ;  i = "<<i<<endl;
-		//unlock;
-		for ( k = 0; k<10000; ++k)
-			for ( j = 0; j <30000; ++j);
+			unlock;
+#endif
 	}
 
-	Nit::nitSem.signal();
-	Nit::nitSem.wait(5);
-	cout << "Zavrsen main metod niti\n";
+Semaphore Nit::nitSem[10];
 
+int userMainTestSecond(int argc, char* argv[]){
+	Nit niti[50];
+		int i, j, k;
+		for(i = 0; i < 50; i++){
+			niti[i].start();
+		}
+		//Nit prva, druga;
+		//Semaphore sem;
+		//prva.start();
+		//druga.start();
+		//cout << "Startovali niti\n";
+		Nit::nitSem[0].wait(5);
+		//cout << "Odradili wait\n";
+		for ( i =0; i < 10; ++i) {
+	#ifndef BCC_BLOCK_IGNORE
+			lock;
+			cout<< "Main: ;  i = "<<i<<endl;
+			unlock;
+	#endif
+			for ( k = 0; k<10000; ++k)
+				for ( j = 0; j <30000; ++j);
+		}
 
-	prva.waitToComplete();
-	druga.waitToComplete();
+		Nit::nitSem[0].signal();
+		Nit::nitSem[0].wait(5);
+	#ifndef BCC_BLOCK_IGNORE
+		lock;
+		cout << "Zavrsen main metod niti\n";
+		unlock;
+	#endif
 
-	return 0;
+		//prva.waitToComplete();
+		//druga.waitToComplete();
+
+		return 0;
 }
+*/
+
+int userMain(int argc, char* argv[]);
 
 int UserThread::getRet(){
 	return this->retMain;
 }
 
 UserThread::UserThread(int c, char** v, StackSize stackSize, Time timeSlice)  : Thread(stackSize, timeSlice), argc(c), argv(v) {
-	cout << "Konstruktor UserThread-a\n";
+	//cout << "Konstruktor UserThread-a\n";
 	retMain = 0;
 }
 
-UserThread::~UserThread(){ }
+UserThread::~UserThread(){ this->waitToComplete(); }
 
 void UserThread::run() {
-	retMain = userMain(argc, argv);
+	//int userMain(int argc, char* argv[]);
+	char* argvv[4];
+	argvv[1] = "2048";
+	argvv[2] = "1";
+	argvv[3] = "1";
+
+	retMain = userMain(4, argvv);
+	//retMain = userMain(argc, argv);
 }
 
 

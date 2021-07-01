@@ -88,13 +88,13 @@ int main(int argc, char** argv) {
 	System sys(argc, argv);
 
 	//pokretanje korisnickog main-a
-	cout << "Pokrecemo main nit\n";
+	//cout << "Pokrecemo main nit\n";
 	userMainThread->start();
-	cout << "Pokrenuli main nit\n";
+	//cout << "Pokrenuli main nit\n";
 	//dispatch();
 	//cout << "Prolazi dispatch()\n";
 	userMainThread->waitToComplete();
-	cout << "Zavrsila se main nit\n";
+	//cout << "Zavrsila se main nit\n";
 	return ((UserThread*)userMainThread)->getRet();
 	//automatska restauracija sistema brisanjem sys na kraju main-a
 

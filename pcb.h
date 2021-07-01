@@ -9,13 +9,11 @@
 #define PCB_H_
 
 #include "thread.h"
-#include "PCBList.h"
 #include "baseList.h"
 
 
 class PCBList;
 
-//proveri sta treba da bude private a sta public
 class PCB {
 
 public:
@@ -28,8 +26,8 @@ public:
 	Status status;
 	Thread* myThread;
 	ID id;
-
 	BaseList<PCB*> waitToCompleteList;
+
 	volatile static PCB* running;
 	static PCBList pcbList;
 	static unsigned unfinished;

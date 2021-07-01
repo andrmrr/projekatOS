@@ -65,7 +65,7 @@ System::System(int argc, char** argv) {
 
 			//kreira "zaludnu" nit
 			idlePCB = IdlePCB::createIdlePCB();
-			cout << "Idle status: " << idlePCB->status << endl;
+			//cout << "Idle status: " << idlePCB->status << endl;
 
 			//inicijalizuje main kao prvu nit
 			userMainThread = new UserThread(argc, argv);
@@ -74,14 +74,14 @@ System::System(int argc, char** argv) {
 			//inicijalizuje context_switch_on_demand
 			context_switch_on_demand = 0;
 			//counter = PCB::running->quantum;
-			cout << "counter: " << counter << endl;
-			cout << "unfinished: " << PCB::unfinished << endl;
+			//cout << "counter: " << counter << endl;
+			//cout << "unfinished: " << PCB::unfinished << endl;
 	unlock;
 #endif
 	}
 
 System::~System(){
-	cout << "System destruktor\n";
+	//cout << "System destruktor\n";
 // vraca staru prekidnu rutinu
 #ifndef BCC_BLOCK_IGNORE
 	lock;
@@ -104,15 +104,15 @@ System::~System(){
 	}
 
 	//brise idlenit
-	cout << "Brisemo idlePCB\n";
+	//cout << "Brisemo idlePCB\n";
 	delete idlePCB;
 
 	//brise Usermain nit
-	cout <<"Brisemo userMainThread\n";
+	//cout <<"Brisemo userMainThread\n";
 	delete userMainThread;
 
 	//brise main PCB
-	cout <<"Brisemo mainPCB\n";
+	//cout <<"Brisemo mainPCB\n";
 	delete mainPCB;
 
 	unlock;

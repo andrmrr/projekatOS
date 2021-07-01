@@ -13,7 +13,7 @@
 template <class T>
 class BaseList {
 
-protected:
+public:
 	struct Elem {
 		T data;
 		Elem* next;
@@ -35,13 +35,14 @@ protected:
 			if (cur == l.beforeCurrent) beforeCurrent = newElem;
 		}
 	}
-
+/*
 	void move(BaseList& l) {
 		first = l.first;
 		last = l.last;
+		current = beforeCurrent = 0;
 		l.first = l.last = 0;
 	}
-
+*/
 	virtual void deleteAll() {
 			Elem* elem = first;
 		while (first) {
@@ -52,7 +53,6 @@ protected:
 		last = current = beforeCurrent = 0;
 	}
 
-public:
 	BaseList() {
 		first = last = beforeCurrent = current = 0;
 	}
@@ -107,7 +107,10 @@ public:
 	}
 
 	BaseList& removeCurrent() {
-		if (!current) cout << "Ne postoji element remove\n";
+		if (!current) {
+			cout << "Ne postoji element remove\n";
+			return *this;
+		}
 		Elem* old = current;
 		current = current->next;
 		(!beforeCurrent ? first : beforeCurrent->next) = current;

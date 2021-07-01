@@ -23,7 +23,7 @@ volatile unsigned tbp;
 volatile unsigned counter;
 volatile int context_switch_on_demand;
 
-void tick(){}
+//void tick(){}
 
 void interrupt timer(){
 	if(!context_switch_on_demand) {
@@ -35,22 +35,23 @@ void interrupt timer(){
 #ifndef BCC_BLOCK_IGNORE
 		asm int 60h;
 #endif
-
+/*
 		//semafori
 		KernelSem* ks;
-		cout << "\nTIMER\n\n";
+		//cout << "\nTIMER\n\n";
+		//cout << endl << endl <<"Running ID: " << PCB::running->id << endl << endl;
 		int i = 0;
 		for(KernelSem::kernelSemList.goToFirst(); KernelSem::kernelSemList.isCurrent(); KernelSem::kernelSemList.goToNext()){
-			cout << "Semafor broj: " << i++ << endl;
+			//syncPrintf("Semafor broj: %d\n", i++);//cout << "Semafor broj: " << i++ << endl;
 			ks = KernelSem::kernelSemList.getCurrent();
-			cout << "Wait lista u tajmeru: "<< ks->waitTimeList;
+			//cout << "Wait lista u tajmeru: "<< ks->waitTimeList;
 			ks->waitTimeList.goToFirst();
 			if(ks->waitTimeList.isCurrent()){
 				if(ks->waitTimeList.getCurrentTime() > 0){
 					ks->waitTimeList.decTime();
 				}
 				else {
-					cout << "AJDE DA GA VADIMO\n";
+					//cout << "AJDE DA GA VADIMO\n";
 					PCB* waiting = (PCB*)ks->waitTimeList.getCurrent();
 					ks->waitTimeList.removeCurrent();
 					waiting->status = PCB::READY;
@@ -58,7 +59,7 @@ void interrupt timer(){
 				}
 			}
 		}
-
+*/
 	}
 
 	if((counter == 0 && PCB::running->quantum != 0) || context_switch_on_demand){
@@ -71,7 +72,7 @@ void interrupt timer(){
 			mov tbp, bp
 		}
 #endif
-		//if(PCB::running){
+
 		PCB::running->sp = tsp;
 		PCB::running->ss = tss;
 		PCB::running->bp = tbp;
@@ -81,18 +82,18 @@ void interrupt timer(){
 			Scheduler::put((PCB*)PCB::running);
 			//cout << "Stavljamo nit: " << PCB::running->id <<" u scheduler\n";
 		}
-		//}
 
-		//cout << "Unfinished: " << PCB::unfinished << endl;
+		//cout << endl << endl << "Unfinished: " << PCB::unfinished << endl;
+		//syncPrintf("Unfinished: %d\n", PCB::unfinished);
 
 		//uzimamo novu nit za izvrsavanje iz Schedulera
 		PCB::running = Scheduler::get();
-		//cout << "Running ID: " << PCB::running->id << endl << endl;
 		if(PCB::running  == 0){
 			//palimo idle nit
 			PCB::running = idlePCB;
 		}
 
+		//syncPrintf("Uzeli smo nit: %d\n", PCB::running->getRunningId());
 		//cout << "Status: " << PCB::running->status << endl;
 
 		//restauriramo novi kontekst
@@ -100,6 +101,7 @@ void interrupt timer(){
 		tss = PCB::running->ss;
 		tbp = PCB::running->bp;
 		counter = PCB::running->quantum;
+
 #ifndef BCC_BLOCK_IGNORE
 		asm{
 			mov sp, tsp

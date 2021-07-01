@@ -8,22 +8,33 @@
 #include "semaphor.h"
 #include "krnSem.h"
 #include <LIMITS.H>
+#include "general.h"
 
 Semaphore::Semaphore(int init) {
-	myImpl = KernelSem::createKernelSem(this, init);
-	cout << "myImpl: " << myImpl << ";  val: " << myImpl->val() << endl;
+#ifndef BCC_BLOCK_IGNORE
+	lock;
+	myImpl = new KernelSem(init);
+	//myImpl = KernelSem::createKernelSem(this, init);
+	//cout << "myImpl: " << myImpl << ";  val: " << myImpl->val() << endl;
+	unlock;
+#endif
 }
 
 Semaphore::~Semaphore (){
-	cout << "Usli u destruktor Semafora\n";
+	//cout << "Usli u destruktor Semafora\n";
+#ifndef BCC_BLOCK_IGNORE
+		lock;
 	if(myImpl){
 		delete myImpl;
+		myImpl = 0;
 	}
+		unlock;
+#endif
 }
 
 int Semaphore::wait (Time maxTimeToWait){
 	if(myImpl){
-		cout << "Wait u Semaphore-u\n";
+		//cout << "Wait u Semaphore-u\n";
 		return myImpl->wait(maxTimeToWait);
 	}
 	return -1;

@@ -40,7 +40,8 @@ public:
 	int remove(ID id);// efikasnije je iterirati po listi preko ID-a
 
 	//vraca -1 ako je neuspesan poziv
-	ID getID(Thread* t);
+	//ID getID(Thread* t);
+
 	//vraca 0 ako je neuspesan poziv
 	Thread* getThreadById(ID id);
 

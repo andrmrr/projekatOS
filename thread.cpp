@@ -6,9 +6,14 @@
  */
 #include "thread.h"
 #include "pcb.h"
+#include "general.h"
 
 Thread::Thread(StackSize stackSize, Time timeSlice){
+#ifndef BCC_BLOCK_IGNORE
+	lock;
 	myPCB = PCB::createPCB(this, stackSize, timeSlice);
+	unlock;
+#endif
 }
 
 void Thread::start(){
@@ -19,18 +24,22 @@ void Thread::start(){
 
 void Thread::waitToComplete(){
 	if(myPCB){
-		cout << "Thread waitToComplete\n";
+		//cout << "Thread waitToComplete\n";
 		myPCB->waitToComplete();
 	}
 }
 
 Thread::~Thread() {
-	//this->waitToComplete();//mozda ne radi posao
+	this->waitToComplete();//mozda ne radi posao
+	//cout << "Thread destruktor\n";
+#ifndef BCC_BLOCK_IGNORE
+	lock;
 	if(myPCB){
-		cout << "Thread destruktor\n";
 		delete myPCB;
 		myPCB = 0;
 	}
+	unlock;
+#endif
 }
 
 ID Thread::getId() {
@@ -46,6 +55,7 @@ ID Thread::getRunningId(){
 	return PCB::getRunningId();
 }
 
-Thread * Thread::getThreadById(ID id){
+Thread
+* Thread::getThreadById(ID id){
 	return PCB::getThreadById(id);
 }

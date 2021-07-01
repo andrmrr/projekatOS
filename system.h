@@ -14,8 +14,6 @@ class System {
 public:
 	System(int argc, char** argv);
 	~System();
-private:
-
 };
 
 
