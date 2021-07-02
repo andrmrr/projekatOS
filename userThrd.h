@@ -22,7 +22,7 @@ class UserThread : public Thread{
 
 
 public:
-
+	virtual Thread* clone() const;
 	UserThread(int c, char** v, StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice);
 	~UserThread();
 	int getRet();

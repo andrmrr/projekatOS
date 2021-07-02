@@ -130,7 +130,7 @@ PCB::PCB(Thread* mt, StackSize stackSize, Time timeSlice){
 	quantum = timeSlice;
 	myThread = mt;
 	status = INITIALIZED;
-
+	sig = 0;
 #ifndef BCC_BLOCK_IGNORE
 	lock;
 	if(stackSize > 65535) stackSize = 65535;
@@ -151,6 +151,7 @@ PCB::PCB(Thread* mt, StackSize stackSize, Time timeSlice){
 
 PCB::PCB(){
 	quantum = defaultTimeSlice;
+	sig = 0;
 	size = 0;
 	stack = 0;
 	myThread = 0;
@@ -172,4 +173,108 @@ void PCB::deblock(){
 		}
 		unlock;
 #endif
+}
+
+//	FORK metode
+
+ID PCB::fork(){
+#ifndef BCC_BLOCK_IGNORE
+    lock;
+	//kloniranje niti
+	Thread* newthr = running->myThread->clone();
+	syncPrintf("ID deteta: %d\n", newthr->myPCB->id);
+	if(newthr == 0){
+		unlock;
+		return -1;
+	}
+	PCB* newpcb = newthr->myPCB;
+	PCB* temp = (PCB*)running;
+
+	newpcb->start();
+
+	unsigned* runningBasePointer = (unsigned*)(MK_FP(temp->ss, temp->bp));
+	unsigned* runningStackPointer = (unsigned*)(MK_FP(temp->ss, temp->sp));
+	unsigned* newStackPointer = newpcb->stack + (runningStackPointer - temp->stack);
+	//postavljamo sp  i ss deteta
+	newpcb->ss = FP_SEG(newStackPointer);
+	newpcb->sp = FP_OFF(newStackPointer);
+	//unsigned* newBasePointer = (unsigned*)(MK_FP(newpcb->ss, newpcb->bp));
+
+	//kopiranje steka
+	int i;
+	unsigned* rbp = runningBasePointer, *nbp = newStackPointer + (runningBasePointer - runningStackPointer);
+	//postavljamo bp deteta
+	newpcb->bp = FP_OFF(nbp);
+	syncPrintf("rbp: %d\n", (temp->stack + temp->size-1) - runningStackPointer);
+	syncPrintf("nbp: %d\n", (newpcb->stack + newpcb->size-1) - newStackPointer);
+	for(i = 0; (temp->stack + temp->size) != (runningStackPointer + i); i++){
+		*(newStackPointer + i) = *(runningStackPointer + i);
+		syncPrintf("i: %d\n", i);
+		//provera za bp
+		//if((runningStackPointer + i) == rbp){
+			//rbp =
+		//}
+	}
+
+
+	//sredjujemo base pointere na steku
+	unsigned *rbp1, *rbp2, *nbp1, *nbp2;
+	nbp1 = newStackPointer + (runningBasePointer - runningStackPointer);
+	newpcb->bp = FP_OFF(nbp1);
+	rbp1 = runningBasePointer;
+	rbp2 = (unsigned*)(*(rbp1+1)*65536 + *(rbp1));
+	cout << "novi stek: " << (newpcb->stack + newpcb->size) << endl;
+	cout << "stari stek: " << (temp->stack + temp->size)<< endl;
+	cout << (unsigned long)(*(rbp1+1)* 65536 + *(rbp1)) << endl;
+	cout << "rbp1: " << rbp1 << " *rbp1: " << *rbp1 << " *(rbp1+1): " << *(rbp1 +1) << endl;
+	cout << "rbp2: " << rbp2 << endl;
+	while(rbp2 < temp->stack + temp->size && temp->stack < rbp2){
+		cout << "nbp1: " << nbp1 << endl;
+		*nbp1 = (unsigned)nbp1 + (rbp2 - rbp1);
+		nbp2 = (unsigned*)*nbp1;
+		rbp1 = rbp2;
+		rbp2 = (unsigned*)*rbp2;
+		nbp1 = nbp2;
+		cout << "rbp1: " << rbp1 << endl;
+		cout << "rbp2: " << rbp2 << endl;
+	}
+
+
+
+	if((PCB*)running == temp){
+		temp->children.add(newpcb->id);
+		unlock;
+		syncPrintf("Povratni ID deteta newthr: %d\n", newthr->myPCB->id);
+		syncPrintf("Povratni ID deteta: %d\n", newpcb->id);
+		return newpcb->id;
+	}
+	else{
+		return 0;
+	}
+
+#endif
+}
+
+
+void PCB::exit(){
+#ifndef BCC_BLOCK_IGNORE
+	lock;
+	//cout << "Zavrsili nit " << running->getRunningId() << endl;
+	running->status = FINISHED;
+	unfinished --;
+	running->deblock();
+	unlock;
+	dispatch();
+#endif
+}
+
+void PCB::waitForForkChildren(){
+	PCB* temp = (PCB*)running;
+	temp->children.goToFirst();
+	while(temp->children.isCurrent()){
+		ID t = temp->children.getCurrent();
+		Thread* thr = getThreadById(t);
+		thr->waitToComplete();
+		temp->children.goToNext();
+	}
 }

@@ -11,7 +11,6 @@
 #include "SCHEDULE.H"
 #include "pcb.h"
 #include "krnSem.h"
-#include "timeList.h"
 #include <IOSTREAM.H>
 
 
@@ -49,6 +48,7 @@ void interrupt timer(){
 			while(et && et->tm == 0){
 				kse->ks->timeHead = kse->ks->timeHead->next;
 				PCB* unblocked = et->data;
+				unblocked->sig = 0;
 				unblocked->status = PCB::READY;
 				Scheduler::put(unblocked);
 				delete et;

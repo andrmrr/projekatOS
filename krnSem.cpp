@@ -53,6 +53,7 @@ int KernelSem::val() const {
 }
 
 int KernelSem::wait(Time maxTimeToWait){
+	int ret;
 #ifndef BCC_BLOCK_IGNORE
 	lock;
 	value--;
@@ -97,8 +98,13 @@ int KernelSem::wait(Time maxTimeToWait){
 
 		dispatch();
 	}
+	else{
+		PCB::running->sig = 0;
+	}
+	ret = PCB::running->sig;
 	unlock;
 #endif
+	return ret;
 }
 
 
@@ -128,7 +134,7 @@ void KernelSem::signal(){
 				delete et;
 			}
 		}
-
+		unblocked->sig = 1;
 		unblocked->status = PCB::READY;
 		Scheduler::put(unblocked);
 	}

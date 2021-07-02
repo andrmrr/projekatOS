@@ -26,10 +26,10 @@ public:
 	 static ID getRunningId();
 	 static Thread * getThreadById(ID id);
 
-	// static ID fork();
-	 //static void exit();
-	 //static void waitForForkChildren();
-	 //virtual Thread* clone() const;
+	 static ID fork();
+	 static void exit();
+	 static void waitForForkChildren();
+	 virtual Thread* clone() const;
 
 protected:
 	 friend class PCB;

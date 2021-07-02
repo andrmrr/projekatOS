@@ -59,3 +59,22 @@ Thread
 * Thread::getThreadById(ID id){
 	return PCB::getThreadById(id);
 }
+
+
+//FORK METODE
+Thread* Thread::clone() const{
+	syncPrintf("Pozvana je clone metoda osnovne klase Thread!\n");
+	return 0;
+}
+
+ID Thread::fork(){
+	return PCB::fork();
+}
+
+void Thread::exit(){
+	PCB::exit();
+}
+
+void Thread::waitForForkChildren(){
+	PCB::waitForForkChildren();
+}

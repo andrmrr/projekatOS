@@ -28,7 +28,8 @@ public:
 	Thread* myThread;
 	ID id;
 	BaseList<PCB*> waitToCompleteList;
-
+	volatile int sig;
+	BaseList<ID> children;
 
 	volatile static PCB* running;
 	static PCBList pcbList;
@@ -38,9 +39,15 @@ public:
 	virtual void waitToComplete();
 	virtual ~PCB();
 
+	//ID metode
 	virtual ID getId();
 	static ID getRunningId();
 	static Thread * getThreadById(ID id);
+
+	//FORK metode
+	 static ID fork();
+	 static void exit();
+	 static void waitForForkChildren();
 
 	static void wrapper();
 	static PCB* createPCB(Thread* mt, StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice);

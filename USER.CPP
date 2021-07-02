@@ -18,7 +18,7 @@
 //---------------------------------------------------------------------------//
 //  Otkomentarisati ukoliko se testira fork
 //---------------------------------------------------------------------------//
-// #define FORK
+ #define FORK
 //---------------------------------------------------------------------------//
 
 //---------------------------------------------------------------------------//
@@ -182,8 +182,11 @@ int userMain (int argc, char* argv[])
 #ifdef FORK
 	const int value = 5;
 	int data = 0, *pData = &data;
+	cout << "Ulazimo u fork\n";
 	ID result = Thread::fork();
+	cout << "Prosli fork sa rezultatom: " << result << endl;
 	if ( result != -1) {
+		dispatch();
 		if (result == 0) {
 			intLock
 			cout<<"Child created!"<<endl;
@@ -193,9 +196,9 @@ int userMain (int argc, char* argv[])
 			intLock
 			cout<<"Child finished!"<<endl;
 			intUnlock
-			Thread::exit();
+			//Thread::exit();
 		} else {
-			Thread::waitForForkChildren();
+			//Thread::waitForForkChildren();
 			assert(value == data);
 		}
 	}

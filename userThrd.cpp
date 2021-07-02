@@ -161,4 +161,9 @@ void UserThread::run() {
 	//retMain = userMain(argc, argv);
 }
 
+Thread* UserThread::clone() const{
+	syncPrintf("clone UserThread-a\n");
+	return new UserThread(argc, argv);
+}
+
 
