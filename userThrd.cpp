@@ -162,7 +162,7 @@ void UserThread::run() {
 }
 
 Thread* UserThread::clone() const{
-	syncPrintf("clone UserThread-a\n");
+	//syncPrintf("clone UserThread-a\n");
 	return new UserThread(argc, argv);
 }
 
